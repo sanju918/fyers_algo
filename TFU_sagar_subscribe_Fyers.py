@@ -16,7 +16,7 @@ load_dotenv()
 
 apiKey = os.environ.get('FYERS_CLIENT_ID')
 accessToken = os.environ.get('ACCESS_TOKEN')
-print(accessToken)
+
 app_id = apiKey
 access_token = accessToken
 fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=app_id)
@@ -42,6 +42,8 @@ for i in range(-2, 2):
     strike = (int(a / 100) + i) * 100
     strikeList.append(strike)
     strikeList.append(strike + 50)
+
+print("STRIKE LIST: ", strikeList)
 
 # Add Index
 instrumentList.append('NSE:NIFTY50-INDEX')
@@ -86,7 +88,6 @@ instrumentList1 = [
     "NSE:NIFTYBANK-INDEX",
     "NSE:SBIN-EQ",
     "MCX:CRUDEOIL23AUGFUT"
-
 ]
 
 instrumentList = instrumentList + instrumentList1
