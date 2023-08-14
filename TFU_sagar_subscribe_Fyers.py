@@ -107,15 +107,15 @@ def hello_world():
 
 
 @app.route('/ltp')
-def getLtp():
+def get_ltp():
     global ltpDict
     print(ltpDict)
     ltp = -1
-    instrumet = request.args.get('instrument')
+    instrument = request.args.get('instrument')
     try:
-        ltp = ltpDict[instrumet]
+        ltp = ltpDict[instrument]
     except Exception as e:
-        print("EXCEPTION occured while getting ltpDict()")
+        print("EXCEPTION occurred while getting ltpDict()")
         print(e)
     return str(ltp)
 
@@ -127,13 +127,13 @@ def on_ticks(ticks):
         pprint(ltpDict)
 
 
-def startServer():
+def start_server():
     print("Inside startServer()")
     app.run(host='0.0.0.0', port=4001)
 
 
 def main():
-    t1 = threading.Thread(target=startServer)
+    t1 = threading.Thread(target=start_server)
     t1.start()
 
     access_token_websocket = app_id + ":" + access_token

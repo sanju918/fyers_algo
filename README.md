@@ -5,8 +5,8 @@
 - PIP
 
 ## Usage
-- create a file called '.env' in the root folder of this repo
-- Enter the following details in the '.env' file
+- create a file called `.env` in the root folder of this repo
+- Enter the following details in the `.env` file
   ```
   FYERS_CLIENT_ID=<APP_ID_HERE>
   FYERS_SECRET_ID=<SECRET_ID_HERE>
