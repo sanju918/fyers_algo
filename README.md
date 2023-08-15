@@ -15,6 +15,8 @@
 - Install libraries by running `pip3 install -r requirements.txt`
 - Generate the access token `python3 generate_access_token.py`
 - Copy the auth code from the URL and enter it when asked for auth token, It will automatically updated the `.env` file with the generated access token
-- Run `python3 TFU_sagar_subscribe_Fyers.py` to test
+- Run `python3 test_fyers.py` to test
 
+## Contributors
+[Sanjay Patel](https://github.com/sanju918)
 
