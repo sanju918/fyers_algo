@@ -36,7 +36,10 @@ data = {
     "symbols": "NSE:NIFTY50-INDEX"
 }
 ltp = fyers.quotes(data=data)
-a = ltp['d'][0]['v']['lp']
+try:
+    a = ltp['d'][0]['v']['lp']
+except KeyError:
+    raise KeyError("Access Token has been expired. Please generate a new token first.")
 
 for i in range(-2, 2):
     strike = (int(a / 100) + i) * 100
