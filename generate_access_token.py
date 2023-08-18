@@ -3,11 +3,12 @@ import os
 from fyers_api import accessToken
 from fyers_api import fyersModel
 import webbrowser
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
+from time import time
 
 
 def get_access_token():
-    load_dotenv()
+    # load_dotenv()
 
     redirect_uri = "https://www.google.com/"
     client_id = os.environ.get('FYERS_CLIENT_ID')
@@ -37,7 +38,8 @@ def get_access_token():
         fyers.funds()
 
         environment_variables = f'FYERS_CLIENT_ID={client_id}\nFYERS_SECRET_ID={secret_key}\n' \
-                                f'ACCESS_TOKEN={access_token}'
+                                f'ACCESS_TOKEN={access_token}\nTOKEN_DATE={time()}'
+        os.environ.setdefault("ACCESS_TOKEN", access_token)
 
         with open(".env", 'w') as env_file:
             env_file.write(environment_variables)

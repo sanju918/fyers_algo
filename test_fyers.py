@@ -6,98 +6,9 @@ from fyers_api import fyersModel
 from pprint import pprint
 from flask import Flask, request
 import threading
+
 from dotenv import load_dotenv
 
-
-##############################################
-#                   INPUT's                  #
-##############################################
-load_dotenv()
-
-apiKey = os.environ.get('FYERS_CLIENT_ID')
-accessToken = os.environ.get('ACCESS_TOKEN')
-
-app_id = apiKey
-access_token = accessToken
-fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=app_id)
-
-expiry = {
-    "year": "23",
-    "month": "8",
-    "day": "17"
-}
-
-intExpiry = expiry["year"] + expiry["month"] + expiry["day"]
-strikeList = []
-instrumentList = []
-
-# NIFTY
-data = {
-    "symbols": "NSE:NIFTY50-INDEX"
-}
-ltp = fyers.quotes(data=data)
-try:
-    a = ltp['d'][0]['v']['lp']
-except KeyError:
-    raise KeyError("Access Token has been expired. Please generate a new token first.")
-
-for i in range(-2, 2):
-    strike = (int(a / 100) + i) * 100
-    strikeList.append(strike)
-    strikeList.append(strike + 50)
-
-print("STRIKE LIST: ", strikeList)
-
-# Add Index
-instrumentList.append('NSE:NIFTY50-INDEX')
-
-# Add CE
-for strike in strikeList:
-    ltp_option = "NSE:NIFTY" + str(intExpiry) + str(strike) + "CE"
-    instrumentList.append(ltp_option)
-
-# Add PE
-for strike in strikeList:
-    ltp_option = "NSE:NIFTY" + str(intExpiry) + str(strike) + "PE"
-    instrumentList.append(ltp_option)
-
-strikeList = []
-# BANKNIFTY
-data = {
-    "symbols": "NSE:NIFTYBANK-INDEX"
-}
-ltp = fyers.quotes(data=data)
-a = ltp['d'][0]['v']['lp']
-
-for i in range(-2, 2):
-    strike = (int(a / 100) + i) * 100
-    strikeList.append(strike)
-
-# Add Index
-instrumentList.append('NSE:NIFTYBANK-INDEX')
-
-# Add CE
-for strike in strikeList:
-    ltp_option = "NSE:BANKNIFTY" + str(intExpiry) + str(strike) + "CE"
-    instrumentList.append(ltp_option)
-
-# Add PE
-for strike in strikeList:
-    ltp_option = "NSE:BANKNIFTY" + str(intExpiry) + str(strike) + "PE"
-    instrumentList.append(ltp_option)
-
-instrumentList1 = [
-    "NSE:NIFTY50-INDEX",
-    "NSE:NIFTYBANK-INDEX",
-    "NSE:SBIN-EQ",
-    "MCX:CRUDEOIL23AUGFUT"
-]
-
-instrumentList = instrumentList + instrumentList1
-print("BELOW IS THE COMPLETE INSTRUMENT LIST")
-print(instrumentList)
-##############################################
-print("!! Started getltpDict.py !!")
 
 app = Flask(__name__)
 
@@ -136,14 +47,101 @@ def start_server():
     app.run(host='0.0.0.0', port=4001)
 
 
-def main():
+def test_fyers_api():
+    # print("ACCESS TOKEN: ", os.environ.get('ACCESS_TOKEN'))
+
+    # INPUT DATA
+    api_key = os.environ.get('FYERS_CLIENT_ID')
+    access_token = os.environ.get('ACCESS_TOKEN')
+
+    app_id = api_key
+    access_token = access_token
+    fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=app_id, log_path="./logs")
+
+    expiry = {
+        "year": "23",
+        "month": "8",
+        "day": "24"
+    }
+
+    int_expiry = expiry["year"] + expiry["month"] + expiry["day"]
+    strike_list = []
+    instrument_list = []
+
+    # NIFTY
+    data = {
+        "symbols": "NSE:NIFTY50-INDEX"
+    }
+    ltp = fyers.quotes(data=data)
+    try:
+        a = ltp['d'][0]['v']['lp']
+    except KeyError:
+        raise KeyError("Access Token has been expired. Please generate a new token first.")
+
+    for i in range(-2, 2):
+        strike = (int(a / 100) + i) * 100
+        strike_list.append(strike)
+        strike_list.append(strike + 50)
+
+    print("STRIKE LIST: ", strike_list)
+
+    # Add Index
+    instrument_list.append('NSE:NIFTY50-INDEX')
+
+    # Add CE
+    for strike in strike_list:
+        ltp_option = "NSE:NIFTY" + str(int_expiry) + str(strike) + "CE"
+        instrument_list.append(ltp_option)
+
+    # Add PE
+    for strike in strike_list:
+        ltp_option = "NSE:NIFTY" + str(int_expiry) + str(strike) + "PE"
+        instrument_list.append(ltp_option)
+
+    strike_list = []
+    # BANKNIFTY
+    data = {
+        "symbols": "NSE:NIFTYBANK-INDEX"
+    }
+    ltp = fyers.quotes(data=data)
+    a = ltp['d'][0]['v']['lp']
+
+    for i in range(-2, 2):
+        strike = (int(a / 100) + i) * 100
+        strike_list.append(strike)
+
+    # Add Index
+    instrument_list.append('NSE:NIFTYBANK-INDEX')
+
+    # Add CE
+    for strike in strike_list:
+        ltp_option = "NSE:BANKNIFTY" + str(int_expiry) + str(strike) + "CE"
+        instrument_list.append(ltp_option)
+
+    # Add PE
+    for strike in strike_list:
+        ltp_option = "NSE:BANKNIFTY" + str(int_expiry) + str(strike) + "PE"
+        instrument_list.append(ltp_option)
+
+    instrument_list1 = [
+        # "NSE:NIFTY50-INDEX",
+        # "NSE:NIFTYBANK-INDEX",
+        # "NSE:SBIN-EQ",
+        # "MCX:CRUDEOIL23AUGFUT"
+    ]
+
+    instrument_list = instrument_list + instrument_list1
+    print("BELOW IS THE COMPLETE INSTRUMENT LIST")
+    print(instrument_list)
+    print("!! Started getltpDict.py !!")
+    # END INPUT DATA
     t1 = threading.Thread(target=start_server)
     t1.start()
 
     access_token_websocket = app_id + ":" + access_token
     fs = ws.FyersSocket(access_token=access_token_websocket, run_background=False, log_path="./logs")
     fs.websocket_data = on_ticks
-    fs.subscribe(symbol=instrumentList, data_type="symbolData")
+    fs.subscribe(symbol=instrument_list, data_type="symbolData")
     fs.keep_running()
 
     t1.join()
@@ -151,4 +149,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    load_dotenv()
+    # print(os.environ.get("ACCESS_TOKEN"))
+    test_fyers_api()
