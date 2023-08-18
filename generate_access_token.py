@@ -3,12 +3,12 @@ import os
 from fyers_api import accessToken
 from fyers_api import fyersModel
 import webbrowser
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 from time import time
+import re
 
 
 def get_access_token():
-    # load_dotenv()
 
     redirect_uri = "https://www.google.com/"
     client_id = os.environ.get('FYERS_CLIENT_ID')
@@ -27,7 +27,8 @@ def get_access_token():
     print(generate_token_url)
     webbrowser.open(generate_token_url, new=1)
 
-    auth_code = input("Enter Auth Code: ")
+    url = input("Enter entire string from web browser URL: ")
+    auth_code = re.search(r'auth_code=(.*?)&state', url).group(1)
     app_session.set_token(auth_code)
     response = app_session.generate_token()
 
@@ -49,4 +50,5 @@ def get_access_token():
 
 
 if __name__ == "__main__":
+    load_dotenv()
     get_access_token()
