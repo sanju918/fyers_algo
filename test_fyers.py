@@ -9,7 +9,7 @@ import threading
 
 from dotenv import load_dotenv
 
-
+load_dotenv('./.env')
 app = Flask(__name__)
 
 tokenMapping = {}
@@ -72,12 +72,12 @@ def test_fyers_api():
     data = {
         "symbols": "NSE:NIFTY50-INDEX"
     }
-    ltp = fyers.quotes(data=data)
-    try:
-        a = ltp['d'][0]['v']['lp']
-    except KeyError:
-        raise KeyError("Access Token has been expired. Please generate a new token first.")
 
+    ltp = fyers.quotes(data=data)
+    if ltp['code'] != 200:
+        raise ValueError(ltp['message'])
+
+    a = ltp['d'][0]['v']['lp']
     for i in range(-2, 2):
         strike = (int(a / 100) + i) * 100
         strike_list.append(strike)
@@ -149,6 +149,6 @@ def test_fyers_api():
 
 
 if __name__ == "__main__":
-    load_dotenv()
+    load_dotenv('.env')
     # print(os.environ.get("ACCESS_TOKEN"))
     test_fyers_api()
