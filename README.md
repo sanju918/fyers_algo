@@ -10,12 +10,14 @@
   ```
   FYERS_CLIENT_ID=<APP_ID_HERE>
   FYERS_SECRET_ID=<SECRET_ID_HERE>
+  ACCESS_TOKEN=<access_token_here>
+  TIME_STAMP=1692626858.385683
   ```
 
 - Install libraries by running `pip3 install -r requirements.txt`
-- Generate the access token `python3 generate_access_token.py`
-- Copy the auth code from the URL and enter it when asked for auth token, It will automatically updated the `.env` file with the generated access token
-- Run `python3 test_fyers.py` to test
+- Run `python3 orchestrator.py` to run the live server. 
+- If the access token is older than 6 hours then the code will ask to generate new access token.
+- When it ask to generate a new access code, it will openup a web browser, follow the instructions. Once done it will redirect it to the redirect URL set on the API, copy the entire URL and enter it when asked for auth token, It will automatically updated the `.env` file with the generated access token
 
 ## Contributors
 [Sanjay Patel](https://github.com/sanju918)
