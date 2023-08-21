@@ -7,9 +7,8 @@ from pprint import pprint
 from flask import Flask, request
 import threading
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, unset_key
 
-load_dotenv('./.env')
 app = Flask(__name__)
 
 tokenMapping = {}
@@ -47,15 +46,16 @@ def start_server():
     app.run(host='0.0.0.0', port=4001)
 
 
-def test_fyers_api():
-    # print("ACCESS TOKEN: ", os.environ.get('ACCESS_TOKEN'))
+def test_fyers_api(file_name):
+
 
     # INPUT DATA
-    api_key = os.environ.get('FYERS_CLIENT_ID')
+    app_id = os.environ.get('FYERS_CLIENT_ID')
     access_token = os.environ.get('ACCESS_TOKEN')
 
-    app_id = api_key
-    access_token = access_token
+    print(access_token)
+    return
+
     fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=app_id, log_path="./logs")
 
     expiry = {
@@ -74,10 +74,17 @@ def test_fyers_api():
     }
 
     ltp = fyers.quotes(data=data)
-    if ltp['code'] != 200:
+    print(ltp)
+
+    if ltp['code'] == '500':
+        raise ConnectionError(ltp['data'])
+    elif ltp['code'] == -15:
         raise ValueError(ltp['message'])
+    elif ltp['code'] != 200:
+        raise ValueError(ltp)
 
     a = ltp['d'][0]['v']['lp']
+
     for i in range(-2, 2):
         strike = (int(a / 100) + i) * 100
         strike_list.append(strike)
@@ -149,6 +156,8 @@ def test_fyers_api():
 
 
 if __name__ == "__main__":
-    load_dotenv('.env')
+    # result = unset_key(key_to_unset='ACCESS_TOKEN', dotenv_path="./.env")
+    # print("Result: ", result)
+    # load_dotenv('.env')
     # print(os.environ.get("ACCESS_TOKEN"))
-    test_fyers_api()
+    test_fyers_api('.env')

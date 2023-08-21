@@ -1,15 +1,19 @@
+import datetime
+import json
 import os
+from settings import Settings
 import time
-from dotenv import load_dotenv
+
 from generate_access_token import get_access_token
 from test_fyers import test_fyers_api
 
 
 def main():
-    load_dotenv()
-    token_time = float(os.environ.get("TOKEN_DATE"))
+    setting_obj = Settings()
+    token_time = setting_obj.old_time_stamp
+
     if token_time:
-        time_diff = time.time() - token_time
+        time_diff = float(time.time()) - float(token_time)
         print("Time Difference is: ", time_diff, "Seconds")
         if time_diff > 21600:
             print("Let's get new access token first.")
