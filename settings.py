@@ -5,6 +5,7 @@ from dotenv import dotenv_values
 
 class Settings:
     def __init__(self, path="db.json"):
+        self.instruments = None
         secrets = dotenv_values(".env")
         self.app_id = secrets["FYERS_CLIENT_ID"]
         self.app_secret = secrets["FYERS_SECRET_ID"]
@@ -30,6 +31,7 @@ class Settings:
         self.expiry = settings["expiry"]
         self.holidays = settings["holidays"]
         self.year = settings["year"]
+        self.instruments = settings["instruments"]
         self.set_expiry()
 
     def save_settings(self):

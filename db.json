@@ -24,5 +24,10 @@
         "14-11-2023",
         "27-11-2023",
         "25-12-2023"
+    ],
+    "instruments": [
+        "NSE:NIFTYBANK-INDEX",
+        "NSE:SBIN-EQ",
+        "MCX:CRUDEOIL23AUGFUT"
     ]
 }

@@ -117,12 +117,7 @@ def test_fyers_api(settings_obj):
         ltp_option = "NSE:BANKNIFTY" + str(int_expiry) + str(strike) + "PE"
         instrument_list.append(ltp_option)
 
-    instrument_list1 = [
-        # "NSE:NIFTY50-INDEX",
-        # "NSE:NIFTYBANK-INDEX",
-        # "NSE:SBIN-EQ",
-        "MCX:CRUDEOIL23AUGFUT"
-    ]
+    instrument_list1 = settings_obj.instruments
 
     instrument_list = instrument_list + instrument_list1
     print("BELOW IS THE COMPLETE INSTRUMENT LIST")
