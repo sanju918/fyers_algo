@@ -8,7 +8,7 @@ FILE_NAME = "db.json"
 
 
 def get_access_token(settings_obj):
-    redirect_uri = "https://www.google.com/"
+    redirect_uri = settings_obj.redirect_url
     client_id = settings_obj.app_id
     secret_key = settings_obj.app_secret
     grant_type = "authorization_code"
@@ -38,7 +38,7 @@ def get_access_token(settings_obj):
         # update settings file
         settings_obj.access_token = access_token
         settings_obj.new_time_stamp = time()
-        settings_obj.write_settings(access_token, time())
+        settings_obj.save_env(access_token, time())
         print("Generated new access token: ", access_token)
 
         fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=client_id, log_path="./logs")

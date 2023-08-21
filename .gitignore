@@ -6,7 +6,6 @@ __pycache__/
 logs/
 # C extensions
 *.so
-db.json
 test.py
 # Distribution / packaging
 .Python

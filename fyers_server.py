@@ -1,5 +1,3 @@
-import os
-
 from fyers_api.Websocket import ws
 from fyers_api import fyersModel
 
@@ -7,7 +5,6 @@ from pprint import pprint
 from flask import Flask, request
 import threading
 
-from dotenv import load_dotenv, unset_key
 
 app = Flask(__name__)
 
@@ -52,11 +49,7 @@ def test_fyers_api(settings_obj):
 
     fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=app_id, log_path="./logs")
 
-    expiry = {
-        "year": "23",
-        "month": "8",
-        "day": "24"
-    }
+    expiry = settings_obj.expiry
 
     int_expiry = expiry["year"] + expiry["month"] + expiry["day"]
     strike_list = []
@@ -68,7 +61,7 @@ def test_fyers_api(settings_obj):
     }
 
     ltp = fyers.quotes(data=data)
-    print(ltp)
+    print("Last Trading Price: ", ltp)
 
     if ltp['code'] == '500':
         raise ConnectionError(ltp['data'])
@@ -128,7 +121,7 @@ def test_fyers_api(settings_obj):
         # "NSE:NIFTY50-INDEX",
         # "NSE:NIFTYBANK-INDEX",
         # "NSE:SBIN-EQ",
-        # "MCX:CRUDEOIL23AUGFUT"
+        "MCX:CRUDEOIL23AUGFUT"
     ]
 
     instrument_list = instrument_list + instrument_list1
