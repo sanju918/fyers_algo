@@ -4,11 +4,11 @@ import json
 class Settings:
     def __init__(self, path="db.json"):
         self.path = path
-        self.app_id = None
-        self.app_secret = None
-        self.access_token = None
-        self.old_time_stamp = None
-        self.new_time_stamp = None
+        self.app_id = ''
+        self.app_secret = ''
+        self.access_token = ''
+        self.old_time_stamp = 0
+        self.new_time_stamp = 0
         self.delta_settings = {}
         self.load_settings()
 
@@ -26,7 +26,7 @@ class Settings:
         self.delta_settings["dynamic_settings"]["time_generated"] = time_stamp
 
         with open(self.path, 'w') as out_file:
-            out_file.write(json.dumps(self.delta_settings))
+            out_file.write(json.dumps(self.delta_settings, indent=4))
 
 
 st = Settings()

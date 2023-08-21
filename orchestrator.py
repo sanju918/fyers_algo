@@ -1,6 +1,3 @@
-import datetime
-import json
-import os
 from settings import Settings
 import time
 
@@ -17,11 +14,11 @@ def main():
         print("Time Difference is: ", time_diff, "Seconds")
         if time_diff > 21600:
             print("Let's get new access token first.")
-            get_access_token()
-            test_fyers_api()
+            get_access_token(setting_obj)
+            test_fyers_api(setting_obj)
         else:
             print("Running tests.")
-            test_fyers_api()
+            test_fyers_api(setting_obj)
 
 
 if __name__ == "__main__":

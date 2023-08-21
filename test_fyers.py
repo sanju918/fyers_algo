@@ -46,15 +46,9 @@ def start_server():
     app.run(host='0.0.0.0', port=4001)
 
 
-def test_fyers_api(file_name):
-
-
-    # INPUT DATA
-    app_id = os.environ.get('FYERS_CLIENT_ID')
-    access_token = os.environ.get('ACCESS_TOKEN')
-
-    print(access_token)
-    return
+def test_fyers_api(settings_obj):
+    app_id = settings_obj.app_id
+    access_token = settings_obj.access_token
 
     fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=app_id, log_path="./logs")
 
@@ -156,8 +150,6 @@ def test_fyers_api(file_name):
 
 
 if __name__ == "__main__":
-    # result = unset_key(key_to_unset='ACCESS_TOKEN', dotenv_path="./.env")
-    # print("Result: ", result)
-    # load_dotenv('.env')
-    # print(os.environ.get("ACCESS_TOKEN"))
-    test_fyers_api('.env')
+    from settings import Settings
+    obj_settings = Settings()
+    test_fyers_api(obj_settings)
