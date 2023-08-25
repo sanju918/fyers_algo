@@ -4,8 +4,8 @@
     },
     "expiry": {
         "year": "23",
-        "month": "8",
-        "day": "24"
+        "month": "AUG",
+        "day": "31"
     },
     "year": 2023,
     "holidays": [
@@ -28,6 +28,6 @@
     "instruments": [
         "NSE:NIFTYBANK-INDEX",
         "NSE:SBIN-EQ",
-        "MCX:CRUDEOIL23AUGFUT"
+        "MCX:CRUDEOIL23SEPFUT"
     ]
 }

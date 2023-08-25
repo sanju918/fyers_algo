@@ -11,17 +11,19 @@
 # 10) Option trading and automatic API trading are subject to market risks
 
 import datetime
-import os
 import time
 import pandas as pd
 from fyers_api import accessToken
 from fyers_api import fyersModel
 import requests
+from settings import Settings
 
 ####################__INPUT__#####################
-client_id = os.environ.get("FYERS_CLIENT_ID")
-access_token = os.environ.get("ACCESS_TOKEN")
-fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=client_id, log_path="/")
+st = Settings()
+
+client_id = st.app_id
+access_token = st.access_token
+fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=client_id, log_path="./logs")
 
 # TIME TO FIND THE STRIKE
 entryHour = 9
@@ -39,7 +41,7 @@ premium = 0
 
 # Time
 # Find NSE price . If nse price < yesterday closing (ATM)
-# ENtry Price BUY
+# Entry Price BUY
 # Exit SL == target
 
 

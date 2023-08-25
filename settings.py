@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timedelta
 from dotenv import dotenv_values
+from last_thrusday import find_thursday
 
 
 class Settings:
@@ -67,13 +68,30 @@ class Settings:
                 break
 
         self.expiry_dates = expiry_dates[0]
+        # print("Expiry Date: ", expiry_dates[0])
+
         return expiry_dates[0]
 
     def set_expiry(self):
         expiry = self.get_weekly_expiry()
         expiry = datetime.strptime(expiry, "%d-%m-%Y")
-        print(expiry.year, expiry.month, expiry.day)
-        self.expiry = {"year": str(expiry.year - 2000), "month": str(expiry.month), "day": str(expiry.day)}
+
+        # find last Thursday of the month
+        last_thu = str(find_thursday())
+        curr_expiry = str(expiry).split(' ')[0]
+        print("Last Thursday: ", str(last_thu), "Expiry", curr_expiry)
+
+        if curr_expiry == last_thu:
+            print("This is the last month expiry")
+            switcher = {1: "JAN", 2:"FEB", 3:"MAR", 4:"APR", 5:"MAY", 6:"JUN", 7:"JULY", 8:"AUG", 9:"SEP", 10:"OCT",
+                        11:"NOV", 12:"DEC"}
+            _date = curr_expiry.split("-")
+            _date[1] = switcher[int(_date[1])]
+            expiry_date = "-".join(_date)
+            print(f"Last Expiry of the Month: {expiry_date}")
+            self.expiry = {"year": str(expiry.year - 2000), "month": str(_date[1]), "day": str(expiry.day)}
+        else:
+            self.expiry = {"year": str(expiry.year - 2000), "month": str(expiry.month), "day": str(expiry.day)}
         self.delta_settings['expiry'] = self.expiry
         self.save_settings()
         print("[INFO] Current weekly Expiry updated and saved as", self.expiry)

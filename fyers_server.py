@@ -51,7 +51,12 @@ def test_fyers_api(settings_obj):
 
     expiry = settings_obj.expiry
 
-    int_expiry = expiry["year"] + expiry["month"] + expiry["day"]
+    switcher = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JULY", "AUG", "SEP", "OCT", "NOV", "DEC"]
+    if expiry["month"] in switcher:
+        int_expiry = expiry["year"] + expiry["month"]
+    else:
+        int_expiry = expiry["year"] + expiry["month"] + expiry["day"]
+
     strike_list = []
     instrument_list = []
 
@@ -107,6 +112,7 @@ def test_fyers_api(settings_obj):
     # Add Index
     instrument_list.append('NSE:NIFTYBANK-INDEX')
 
+
     # Add CE
     for strike in strike_list:
         ltp_option = "NSE:BANKNIFTY" + str(int_expiry) + str(strike) + "CE"
@@ -117,9 +123,10 @@ def test_fyers_api(settings_obj):
         ltp_option = "NSE:BANKNIFTY" + str(int_expiry) + str(strike) + "PE"
         instrument_list.append(ltp_option)
 
-    instrument_list1 = settings_obj.instruments
+    # instrument_list1 = settings_obj.instruments
 
-    instrument_list = instrument_list + instrument_list1
+    # instrument_list = instrument_list + instrument_list1
+
     print("BELOW IS THE COMPLETE INSTRUMENT LIST")
     print(instrument_list)
     print("!! Started getltpDict.py !!")
