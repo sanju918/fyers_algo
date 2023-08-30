@@ -9,7 +9,7 @@
 - If you have done the first time setup then run this else go to First time setup 
 
 ```commandline
-docker run -p 4001:4001 --name python_fyers_algo python_fyers_algo:latest
+docker run -rm -p 4001:4001 python_fyers_algo:latest
 ```
 - If the access token is older than 6 hours then the code will ask to generate new access token.
 - When it ask to generate a new access code, it will open up a web browser, follow the instructions. 
@@ -30,7 +30,7 @@ docker run -p 4001:4001 --name python_fyers_algo python_fyers_algo:latest
 - Run the following command to build the docker image
   `docker build -t python_fyers_algo:latest .`
 - Once it is successful run the following command to run the docker
-  `docker run -p 4001:4001 --name python_fyers_algo python_fyers_algo:latest`
+  `docker run -rm -p 4001:4001 python_fyers_algo:latest`
 
 ## Contributors
 [Sanjay Patel](https://github.com/sanju918)
