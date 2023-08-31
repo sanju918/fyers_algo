@@ -1,16 +1,14 @@
 # fyers_algo
 
 ## Requirements
-- Python3
-- PIP
 - Docker Desktop
 
 ## Usage
 - If you have done the first time setup then run this else go to First time setup 
 
-```commandline
-docker run --rm -p 4001:4001 python_fyers_algo:latest
-```
+  ```commandline
+  docker run --rm -it -p 4001:4001 -v '/Users/s0p05wq/Documents/Trading Classes/fyers_algo':/app python_fyers_algo_min:latest
+  ```
 - If the access token is older than 6 hours then the code will ask to generate new access token.
 - When it ask to generate a new access code, it will open up a web browser, follow the instructions. 
 - Once done it will redirect it to the redirect URL set on the API, copy the entire URL and enter it when asked for auth token, It will automatically updated the `.env` file with the generated access token
@@ -28,9 +26,24 @@ docker run --rm -p 4001:4001 python_fyers_algo:latest
 
 - Make sure docker desktop is running in the background.
 - Run the following command to build the docker image
-  `docker build -t python_fyers_algo:latest .`
+  - Syntax:
+    ```commandline
+    docker build -t IMAGE_NAME:latest
+    ```
+  - Example
+    ```commandline
+    docker build -t python_fyers_algo_min:latest .
+    ```
 - Once it is successful run the following command to run the docker
-  `docker run --rm -p 4001:4001 python_fyers_algo:latest`
+    - `LOCAL_CODE_LOCATION` is the path of your python codes. In my example my python files are downloaded in `/Users/s0p05wq/Documents/Trading Classes/fyers_algo`
+    - Syntax:
+      ```commandline
+      docker run --rm -it -p 4001:4001 -v 'LOCAL_CODE_LOCATION':/app IMAGE_NAME:latest
+      ```
+  - Example
+    ```commandline
+    docker run --rm -it -p 4001:4001 -v '/Users/s0p05wq/Documents/Trading Classes/fyers_algo':/app python_fyers_algo_min:latest
+    ```
 
 ## Contributors
 [Sanjay Patel](https://github.com/sanju918)
