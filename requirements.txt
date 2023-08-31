@@ -6,3 +6,4 @@ requests
 ta
 pandas_ta
 python-dotenv
+pyotp
