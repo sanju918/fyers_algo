@@ -20,7 +20,7 @@ def generate_access_token():
 
     # print(conf.client_id, conf.secret_key, conf.redirect_url)
     url_to_activate = session.generate_authcode()
-    # print(f'URL to activate APP:  {url_to_activate}')
+    print(f'URL to activate APP:  {url_to_activate}')
 
     verify_totp_result = None
 
