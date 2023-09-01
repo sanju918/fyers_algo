@@ -17,12 +17,13 @@ from fyers_api import accessToken
 from fyers_api import fyersModel
 import requests
 from settings import Settings
+from generate_access_token import generate_access_token
 
 ####################__INPUT__#####################
 st = Settings()
 
 client_id = st.app_id
-access_token = st.access_token
+access_token = generate_access_token()[0]
 fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=client_id, log_path="../logs")
 
 # TIME TO FIND THE STRIKE
