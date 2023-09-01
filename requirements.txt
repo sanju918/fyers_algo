@@ -1,4 +1,7 @@
 fyers-apiv2
-pyotp
-python-dotenv
-pyyaml
+pyotp~=2.9.0
+python-dotenv~=1.0.0
+pyyaml~=6.0.1
+requests~=2.25.1
+Flask~=2.3.2
+pandas~=2.0.3
