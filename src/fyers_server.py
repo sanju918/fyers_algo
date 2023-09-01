@@ -134,10 +134,10 @@ def run_server(data: dict):
     t1 = threading.Thread(target=start_server)
     t1.start()
 
-    access_token_websocket = app_id + ":" + access_token
+    access_token_websocket = app_id + '-100' + ":" + access_token
     fs = ws.FyersSocket(access_token=access_token_websocket, run_background=False, log_path="./logs")
     fs.websocket_data = on_ticks
-    print("INSTRUMENTS", instrument_list)
+
     fs.subscribe(symbol=instrument_list, data_type="symbolData")
     fs.keep_running()
 
