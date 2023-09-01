@@ -1,14 +1,15 @@
 import json
-import requests
-import time
-import pyotp
 import os
-import requests
-from urllib.parse import parse_qs, urlparse
 import sys
-from fyers_api import fyersModel
-from fyers_api import accessToken
+import time
+from urllib.parse import parse_qs, urlparse
+
+import pyotp
+import requests
 from dotenv import load_dotenv
+from fyers_api import accessToken
+from fyers_api import fyersModel
+
 load_dotenv()
 
 
@@ -48,6 +49,7 @@ def send_login_otp(fy_id, app_id):
             return [ERROR, result_string.text]
         result = json.loads(result_string.text)
         request_key = result["request_key"]
+        print("RESULT: ", request_key)
         return [SUCCESS, request_key]
     except Exception as e:
         return [ERROR, e]
@@ -61,6 +63,7 @@ def verify_totp(request_key, totp):
             return [ERROR, result_string.text]
         result = json.loads(result_string.text)
         request_key = result["request_key"]
+
         return [SUCCESS, request_key]
     except Exception as e:
         return [ERROR, e]

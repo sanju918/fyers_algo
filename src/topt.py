@@ -42,12 +42,12 @@ ERROR = -1
 def send_login_otp(fy_id, app_id):
     try:
         _json = {"fy_id": fy_id, "app_id": app_id}
-        print("JSON: ", _json)
         result_string = requests.post(url=URL_SEND_LOGIN_OTP, json=_json)
         if result_string.status_code != 200:
             return [ERROR, result_string.text]
         result = json.loads(result_string.text)
         request_key = result["request_key"]
+        print("RESULT: ", request_key)
         return [SUCCESS, request_key]
     except Exception as e:
         return [ERROR, e]
@@ -112,6 +112,7 @@ ses.headers.update({
 authParam = {"fyers_id": FY_ID, "app_id": APP_ID, "redirect_uri": REDIRECT_URI, "appType": APP_TYPE,
              "code_challenge": "", "state": "None", "scope": "", "nonce": "", "response_type": "code",
              "create_cookie": True}
+print("AUTH PARAM: ", authParam)
 authres = ses.post('https://api.fyers.in/api/v2/token', json=authParam).json()
 print("Authers: ", authres)
 url = authres['Url']

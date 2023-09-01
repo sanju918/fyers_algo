@@ -56,23 +56,25 @@ class Settings:
 
     def send_login_otp(self):
         try:
-            json_ = {"fy_id": self.fy_id, "app_id": self.app_id}
-            print("JSON: ", json)
+            json_ = {"fy_id": self.fy_id, "app_id": self.app_id_type}
+            # print("JSON: ", json_)
             res = requests.post(url=self.login_otp_url, json=json_)
             if res.status_code != 200:
                 return self.status(1, res.text)
             result = json.loads(res.text)
+
             return self.status(0, result["request_key"])
         except Exception as exp:
             return self.status(1, exp)
 
     def verify_totp(self, totp):
         try:
+            print("TRYING")
             request_key = self.send_login_otp()
-
+            print("RESULT: ", request_key)
             if not request_key["error_code"]:
                 print("[INFO] send_login_otp success")
-                json_ = {"request_key": request_key, "otp": pyotp.TOTP(totp).now()}
+                json_ = {"request_key": request_key["data"], "otp": pyotp.TOTP(totp).now()}
                 res = requests.post(url=self.verify_totp_url, json=json_)
                 if res.status_code != 200:
                     return self.status(1, res.text)
@@ -108,7 +110,7 @@ def main():
     verify_totp_result = None
 
     for _ in range(1, 3):
-        # verify_totp_result = conf.verify_totp(conf.totp_key)
+        verify_totp_result = conf.verify_totp(conf.totp_key)
         print("VERIFY: ", verify_totp_result)
         if verify_totp_result['error_code']:
             print('[ERROR] Verify TOTP failed.', verify_totp_result['data'])
@@ -134,6 +136,7 @@ def main():
     auth_param = {"fyers_id": conf.fy_id, "app_id": conf.app_id, "redirect_uri": getattr(conf, 'redirect_url', None),
                   "appType": conf.app_type, "code_challenge": "", "state": "None",
                   "scope": "", "nonce": "", "response_type": "code", "create_cookie": True}
+    print("AUTH PARAMS: ", auth_param)
     authres = ses.post('https://api.fyers.in/api/v2/token', json=auth_param).json()
     print(authres)
     url = authres['Url']
@@ -143,12 +146,12 @@ def main():
 
     session.set_token(auth_code)
     response = session.generate_token()
-    access_token = response['access_token']
+    conf.access_token = response['access_token']
     print(f"[INFO] ACCESS TOKEN: {conf.access_token}")
 
     fyers_model = fyersModel.FyersModel(
         client_id=conf.client_id,
-        token=access_token,
+        token=conf.access_token,
         log_path=os.getcwd()
     )
 
