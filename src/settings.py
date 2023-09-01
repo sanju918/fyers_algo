@@ -1,6 +1,8 @@
+
 import json
 import os
 import sys
+
 from urllib.parse import urlparse, parse_qs
 
 import pyotp
@@ -25,7 +27,6 @@ class Settings:
         self.app_id_type = '2'  # 2 denotes web login
         self.totp_key = secrets['TOTP_KEY']
         self.pin = secrets['PIN']
-        self.access_token = None
 
         # API Endpoints
         self.base_url = "https://api-t2.fyers.in/vagator/v2"
@@ -56,6 +57,7 @@ class Settings:
     def send_login_otp(self):
         try:
             json_ = {"fy_id": self.fy_id, "app_id": self.app_id}
+            print("JSON: ", json)
             res = requests.post(url=self.login_otp_url, json=json_)
             if res.status_code != 200:
                 return self.status(1, res.text)
@@ -64,12 +66,13 @@ class Settings:
         except Exception as exp:
             return self.status(1, exp)
 
-    def verify_totp(self):
+    def verify_totp(self, totp):
         try:
             request_key = self.send_login_otp()
-            if request_key["error-code"] == 0:
+
+            if not request_key["error_code"]:
                 print("[INFO] send_login_otp success")
-                json_ = {"request_key": request_key, "otp": pyotp.TOTP(self.totp_key).now()}
+                json_ = {"request_key": request_key, "otp": pyotp.TOTP(totp).now()}
                 res = requests.post(url=self.verify_totp_url, json=json_)
                 if res.status_code != 200:
                     return self.status(1, res.text)
@@ -95,17 +98,19 @@ def main():
         secret_key=conf.secret_key,
         response_type='code',
         grant_type='authorization_code',
-        redirect_uri=conf.redirect_url
+        redirect_uri=getattr(conf, 'redirect_url')
     )
 
-    url_to_activate = session.generate_token()
+    # print(conf.client_id, conf.secret_key, conf.redirect_url)
+    url_to_activate = session.generate_authcode()
     print(f'URL to activate APP:  {url_to_activate}')
 
     verify_totp_result = None
 
-    for _ in range(1,3):
-        verify_totp_result = conf.verify_totp()
-        if not verify_totp_result['error_code']:
+    for _ in range(1, 3):
+        # verify_totp_result = conf.verify_totp(conf.totp_key)
+        print("VERIFY: ", verify_totp_result)
+        if verify_totp_result['error_code']:
             print('[ERROR] Verify TOTP failed.', verify_totp_result['data'])
         else:
             print('[SUCCESS] TOTP Successfully verified.', verify_totp_result['data'])
@@ -126,7 +131,7 @@ def main():
     print(res_pin['data'])
     ses.headers.update({'authorization': f"Bearer {res_pin['data']['access_token']}"})
 
-    auth_param = {"fyers_id": conf.fy_id, "app_id": conf.app_id, "redirect_uri": conf.redirect_url,
+    auth_param = {"fyers_id": conf.fy_id, "app_id": conf.app_id, "redirect_uri": getattr(conf, 'redirect_url', None),
                   "appType": conf.app_type, "code_challenge": "", "state": "None",
                   "scope": "", "nonce": "", "response_type": "code", "create_cookie": True}
     authres = ses.post('https://api.fyers.in/api/v2/token', json=auth_param).json()
@@ -138,24 +143,16 @@ def main():
 
     session.set_token(auth_code)
     response = session.generate_token()
-    conf.access_token = response['access_token']
+    access_token = response['access_token']
     print(f"[INFO] ACCESS TOKEN: {conf.access_token}")
 
     fyers_model = fyersModel.FyersModel(
         client_id=conf.client_id,
-        token=conf.access_token,
+        token=access_token,
         log_path=os.getcwd()
     )
 
     print(f'[INFO] {fyers_model.get_profile()}')
-
-    print(conf.year)
-    print(conf.expiry_year)
-    print(conf.expiry_month)
-    print(conf.expiry_day)
-    print(conf.redirect_url)
-    print(conf.holidays)
-    print(conf.instruments)
 
 
 if __name__ == '__main__':

@@ -1,3 +1,13 @@
+PyYAML
+fyers-apiv2
+flask
+xlwings
+pandas
+requests
+ta
+pandas_ta
+python-dotenv
+pyotp
 appscript==1.2.2
 asyncio==3.4.3
 blinker==1.6.2
