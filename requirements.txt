@@ -1,3 +1,4 @@
+PyYAML
 fyers-apiv2
 flask
 xlwings
