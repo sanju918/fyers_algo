@@ -43,13 +43,13 @@ def start_server():
     app.run(host='0.0.0.0', port=4001)
 
 
-def test_fyers_api(settings_obj):
-    app_id = settings_obj.app_id
-    access_token = settings_obj.access_token
+def run_server(access_token: str, conf: object):
+    app_id = getattr(conf, 'app_id', '')
+    access_token = access_token
 
     fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=app_id, log_path="./logs")
 
-    expiry = settings_obj.expiry
+    expiry = getattr(conf, 'expiry', {})
 
     switcher = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JULY", "AUG", "SEP", "OCT", "NOV", "DEC"]
     if expiry["month"] in switcher:
@@ -123,9 +123,9 @@ def test_fyers_api(settings_obj):
         ltp_option = "NSE:BANKNIFTY" + str(int_expiry) + str(strike) + "PE"
         instrument_list.append(ltp_option)
 
-    # instrument_list1 = settings_obj.instruments
+    instrument_list1 = getattr(conf, 'instruments', [])
 
-    # instrument_list = instrument_list + instrument_list1
+    instrument_list = instrument_list + instrument_list1
 
     print("BELOW IS THE COMPLETE INSTRUMENT LIST")
     print(instrument_list)
@@ -134,9 +134,10 @@ def test_fyers_api(settings_obj):
     t1 = threading.Thread(target=start_server)
     t1.start()
 
-    access_token_websocket = app_id + ":" + access_token
+    access_token_websocket = app_id + '-100' + ":" + access_token
     fs = ws.FyersSocket(access_token=access_token_websocket, run_background=False, log_path="./logs")
     fs.websocket_data = on_ticks
+
     fs.subscribe(symbol=instrument_list, data_type="symbolData")
     fs.keep_running()
 
@@ -145,6 +146,4 @@ def test_fyers_api(settings_obj):
 
 
 if __name__ == "__main__":
-    from settings import Settings
-    obj_settings = Settings()
-    test_fyers_api(obj_settings)
+    pass

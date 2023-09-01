@@ -3,31 +3,44 @@
 ## Requirements
 - `Docker Desktop` (Download it from here: https://www.docker.com/products/docker-desktop/ )
 - `PyChram Community Edition` (Download it from here: https://www.jetbrains.com/pycharm/download/)
-- `WSL 2` This is required for windows users. If WSL is not installed in your windows system, go to microsoft store and sesarch for `WSL 2`. It will show something like `Windows Subsystem for Linux`, install this. Also you can follow Microsoft documentation here: https://learn.microsoft.com/en-us/windows/wsl/install
+- `WSL 2` This is required for Windows users. If WSL is not installed in your windows system, go to microsoft store and sesarch for `WSL 2`. It will show something like `Windows Subsystem for Linux`, install this. Also you can follow Microsoft documentation here: https://learn.microsoft.com/en-us/windows/wsl/install
 
 ### Optional 
 - Python 3.9 (Download it from here: https://www.python.org/downloads/release/python-3918/)
 - Git (Download it from here: https://git-scm.com/downloads)
 
 ## Usage (Only do this if you have done the first time setup)
-- If you have done the first time setup then run this else go to First time setup 
-
-  ```commandline
-  docker run --rm -it -p 4001:4001 -v C://Users/Sanjay/Documents/fyers_algo:/app python_fyers_algo_min:latest
-  ```
-- If the access token is older than 6 hours then the code will ask to generate new access token.
-- When it ask to generate a new access code, it will open up a web browser, follow the instructions. 
-- Once done it will redirect it to the redirect URL set on the API, copy the entire URL and enter it when asked for auth token, It will automatically updated the `.env` file with the generated access token
+ - Watch the video how to run, link: 
 
 ## First time setup
-- create a file called `.env` in the root folder of this repo
+- Create a file called `.env` in the root folder of this repo
 - Enter the following details in the `.env` file and make necessary changes to the parameters.
+- `APP_ID` should not contain `-100`
+- `TOTP_KEY` Can be generated from the profile file, will share video link how to set it up
+- `FYERS_ID` Is the client id or profile id, will share video link how to get this.
 
   ```
-  FYERS_CLIENT_ID=X81xxxxxx120
-  FYERS_SECRET_ID=LCBxxxx3A
-  ACCESS_TOKEN=LIXXX34XXX
-  TIME_STAMP=1693402413
+  APP_ID=X31YYXXYY
+  APP_TYPE=100
+  FYERS_SECRET_KEY=86AAVEX
+  FYERS_ID=XB17834
+  APP_ID_TYPE=2
+  TOTP_KEY=KDFD493LDKJFDLJAK2KD
+  PIN=1234
+  REDIRECT_URL=https://www.sanjaythegreatcoder.com
+  ```
+- Download the repo from: https://github.com/sanju918/fyers_algo/archive/refs/heads/main.zip
+- Extract the zip file and copy the path of the folder where it is extracted.
+- Download the image from docker hub
+  ```commandline
+  docker pull cenzer2/python_fyers_algo_min:latest
+  ```
+- Once the image has been pulled, run this command to start docker. Replace the path where the repo is extracted.
+  
+  - Syntax: `docker run  -it -p 4001:4001 -v REPO_PATH_IN_LOCAL:/app python_fyers_algo_min:latest`
+  - Example:
+  ```commandline
+  docker run -it -p 4001:4001 -v D:\Trading\repos\fyers_algo:/app cenzer2/python_fyers_algo_min:latest
   ```
 
 - Make sure docker desktop is running in the background. Enter the following command to check if you have installed teh docker desktop correctly and is running fine.
