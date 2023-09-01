@@ -23,7 +23,7 @@ st = Settings()
 
 client_id = st.app_id
 access_token = st.access_token
-fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=client_id, log_path="./logs")
+fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=client_id, log_path="../logs")
 
 # TIME TO FIND THE STRIKE
 entryHour = 9
