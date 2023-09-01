@@ -43,13 +43,13 @@ def start_server():
     app.run(host='0.0.0.0', port=4001)
 
 
-def run_server(data: dict):
-    app_id = data['app_id']
-    access_token = data['access_token']
+def run_server(access_token: str, conf: object):
+    app_id = getattr(conf, 'app_id', '')
+    access_token = access_token
 
     fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=app_id, log_path="./logs")
 
-    expiry = data['expiry']
+    expiry = getattr(conf, 'expiry', {})
 
     switcher = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JULY", "AUG", "SEP", "OCT", "NOV", "DEC"]
     if expiry["month"] in switcher:
@@ -123,9 +123,9 @@ def run_server(data: dict):
         ltp_option = "NSE:BANKNIFTY" + str(int_expiry) + str(strike) + "PE"
         instrument_list.append(ltp_option)
 
-    # instrument_list1 = settings_obj.instruments
+    instrument_list1 = getattr(conf, 'instruments', [])
 
-    # instrument_list = instrument_list + instrument_list1
+    instrument_list = instrument_list + instrument_list1
 
     print("BELOW IS THE COMPLETE INSTRUMENT LIST")
     print(instrument_list)
