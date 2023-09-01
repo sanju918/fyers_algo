@@ -1,32 +1,30 @@
 import json
-import os
-import sys
 import time
-from urllib.parse import parse_qs, urlparse
-
 import pyotp
+import os
 import requests
-from dotenv import load_dotenv
-from fyers_api import accessToken
+from urllib.parse import parse_qs, urlparse
+import sys
 from fyers_api import fyersModel
-
-load_dotenv()
+from fyers_api import accessToken
+from dotenv import dotenv_values
 
 
 # App ID from myapi dashboard is in the form appId-appType. Example - EGNI8CE27Q-100, In this code EGNI8CE27Q will be APP_ID and 100 will be the APP_TYPE
-APP_ID = os.getenv("FYERS_CLIENT_ID")
-APP_TYPE = os.getenv("FYERS_SECRET_ID")
-SECRET_KEY = os.getenv("secret_key")
+secrets = dotenv_values(".env")
+APP_ID = secrets["APP_ID"]
+APP_TYPE = secrets["APP_TYPE"]
+SECRET_KEY = secrets["FYERS_SECRET_KEY"]
 client_id = f'{APP_ID}-{APP_TYPE}'
 
 
-FY_ID = os.getenv('fyers_id')  # Your fyers ID
+FY_ID = secrets['FYERS_ID']  # Your fyers ID
 APP_ID_TYPE = "2"  # Keep default as 2, It denotes web login
 # TOTP secret is generated when we enable 2Factor TOTP from myaccount portal
-TOTP_KEY = os.getenv('TOTP_KEY')
-PIN = os.getenv('pin')  # User pin for fyers account
+TOTP_KEY = secrets['TOTP_KEY']
+PIN = secrets['PIN']  # User pin for fyers account
 
-REDIRECT_URI = os.getenv('redirect_uri')  # Redirect url from the app.
+REDIRECT_URI = secrets['REDIRECT_URL']  # Redirect url from the app.
 
 
 # API endpoints
@@ -43,8 +41,8 @@ ERROR = -1
 
 def send_login_otp(fy_id, app_id):
     try:
-        result_string = requests.post(url=URL_SEND_LOGIN_OTP, json={
-            "fy_id": fy_id, "app_id": app_id})
+        _json = {"fy_id": fy_id, "app_id": app_id}
+        result_string = requests.post(url=URL_SEND_LOGIN_OTP, json=_json)
         if result_string.status_code != 200:
             return [ERROR, result_string.text]
         result = json.loads(result_string.text)
@@ -63,7 +61,6 @@ def verify_totp(request_key, totp):
             return [ERROR, result_string.text]
         result = json.loads(result_string.text)
         request_key = result["request_key"]
-
         return [SUCCESS, request_key]
     except Exception as e:
         return [ERROR, e]
@@ -113,11 +110,13 @@ ses.headers.update({
 
 
 authParam = {"fyers_id": FY_ID, "app_id": APP_ID, "redirect_uri": REDIRECT_URI, "appType": APP_TYPE,
-             "code_challenge": "", "state": "None", "scope": "", "nonce": "", "response_type": "code", "create_cookie": True}
+             "code_challenge": "", "state": "None", "scope": "", "nonce": "", "response_type": "code",
+             "create_cookie": True}
+print("AUTH PARAM: ", authParam)
 authres = ses.post('https://api.fyers.in/api/v2/token', json=authParam).json()
-print(authres)
+print("Authers: ", authres)
 url = authres['Url']
-print(url)
+print("URL:", url)
 parsed = urlparse(url)
 auth_code = parse_qs(parsed.query)['auth_code'][0]
 

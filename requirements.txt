@@ -1,9 +1,4 @@
 fyers-apiv2
-flask
-xlwings
-pandas
-requests
-ta
-pandas_ta
-python-dotenv
 pyotp
+python-dotenv
+pyyaml
