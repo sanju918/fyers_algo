@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timedelta
 from dotenv import dotenv_values
-from last_thrusday import find_thursday
+from src.last_thrusday import find_thursday
 
 
 class Settings:

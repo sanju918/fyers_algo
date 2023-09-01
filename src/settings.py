@@ -1,20 +1,26 @@
-
 import json
-import os
 import sys
-
-from urllib.parse import urlparse, parse_qs
+from datetime import datetime, timedelta
 
 import pyotp
 import requests
 import yaml
 from dotenv import dotenv_values
-from fyers_api import accessToken
-from fyers_api import fyersModel
+
+from last_thrusday import find_thursday
+
+
+def status(code, pay_load):
+    return {
+        "error_code": code,
+        "data": pay_load
+    }
 
 
 class Settings:
     def __init__(self, settings_file_path='settings.yml'):
+        self.expiry = None
+        self.expiry_dates = None
         self.settings_file_path = settings_file_path
         self.settings = None
         self.load_settings()
@@ -60,103 +66,73 @@ class Settings:
             # print("JSON: ", json_)
             res = requests.post(url=self.login_otp_url, json=json_)
             if res.status_code != 200:
-                return self.status(1, res.text)
+                return status(1, res.text)
             result = json.loads(res.text)
 
-            return self.status(0, result["request_key"])
+            return status(0, result["request_key"])
         except Exception as exp:
-            return self.status(1, exp)
+            return status(1, exp)
 
     def verify_totp(self, totp):
         try:
-            print("TRYING")
+            # print("TRYING")
             request_key = self.send_login_otp()
-            print("RESULT: ", request_key)
+            # print("RESULT: ", request_key)
             if not request_key["error_code"]:
-                print("[INFO] send_login_otp success")
+                print("[Success] Login OTP sent.")
                 json_ = {"request_key": request_key["data"], "otp": pyotp.TOTP(totp).now()}
                 res = requests.post(url=self.verify_totp_url, json=json_)
                 if res.status_code != 200:
-                    return self.status(1, res.text)
+                    return status(1, res.text)
                 result = json.loads(res.text)
-                return self.status(0, result["request_key"])
+                return status(0, result["request_key"])
             else:
-                print(f"[ERROR] send_login_otp failure - {request_key['data']}")
+                print(f"[Error] send_login_otp failure - {request_key['data']}")
                 sys.exit()
         except Exception as exp:
-            return self.status(1, exp)
+            return status(1, exp)
 
-    def status(self, code, pay_load):
-        return {
-            "error_code": code,
-            "data": pay_load
-        }
+    def get_weekly_expiry(self):
+        holidays = [datetime.strptime(h, "%d-%m-%Y") for h in self.holidays]
+        expiry_dates = []
+        start_date = datetime.today()
+        end_date = datetime(self.year, 12, 31)
 
+        while start_date.weekday() != 3:  # Find the first Thursday of the year
+            start_date += timedelta(days=1)
 
-def main():
-    conf = Settings()
-    session = accessToken.SessionModel(
-        client_id=conf.client_id,
-        secret_key=conf.secret_key,
-        response_type='code',
-        grant_type='authorization_code',
-        redirect_uri=getattr(conf, 'redirect_url')
-    )
+        while start_date <= end_date:
+            if start_date not in holidays:
+                expiry_dates.append(start_date.strftime("%d-%m-%Y"))
+            else:  # If Thursday is a holiday, use the previous trading day as expiry day
+                adjusted_expiry_date = start_date - timedelta(days=1)
+                while adjusted_expiry_date in holidays:
+                    adjusted_expiry_date -= timedelta(days=1)
+                expiry_dates.append(adjusted_expiry_date.strftime("%d-%m-%Y"))
+            start_date += timedelta(weeks=1)
+            if len(expiry_dates) >= 1:
+                break
 
-    # print(conf.client_id, conf.secret_key, conf.redirect_url)
-    url_to_activate = session.generate_authcode()
-    print(f'URL to activate APP:  {url_to_activate}')
+        self.expiry_dates = expiry_dates[0]
 
-    verify_totp_result = None
-
-    for _ in range(1, 3):
-        verify_totp_result = conf.verify_totp(conf.totp_key)
-        print("VERIFY: ", verify_totp_result)
-        if verify_totp_result['error_code']:
-            print('[ERROR] Verify TOTP failed.', verify_totp_result['data'])
+        expiry = datetime.strptime(expiry_dates[0], "%d-%m-%Y")
+        last_thu = str(find_thursday())
+        curr_expiry = str(expiry).split(" ")[0]
+        
+        print("Last Thursday of the month: ", str(last_thu), "Current Expiry", curr_expiry)
+        
+        if curr_expiry == last_thu:
+            print("[Info] This is the last month expiry")
+            switcher = {1: "JAN", 2: "FEB", 3: "MAR", 4: "APR", 5: "MAY", 6: "JUN", 7: "JULY", 8: "AUG", 9: "SEP",
+                        10: "OCT", 11: "NOV", 12: "DEC"}
+            _date = curr_expiry.split("-")
+            _date[1] = switcher[int(_date[1])]
+            expiry_date = "-".join(_date)
+            print(f"Last Expiry of the Month: {expiry_date}")
+            self.expiry = {"year": str(expiry.year - 2000), "month": str(_date[1]), "day": f'{expiry.day:02}'}
         else:
-            print('[SUCCESS] TOTP Successfully verified.', verify_totp_result['data'])
-            break
+            self.expiry = {"year": str(expiry.year - 2000), "month": str(expiry.month), "day": f'{expiry.day:02}'}
 
-    req_key = verify_totp_result['data']
-
-    ses = requests.Session()
-    payload_pin = {
-        "request_key": f'{req_key}',
-        "identity_type": "pin",
-        "identifier": f"{conf.pin}",
-        "recaptcha_token": ""
-    }
-
-    req_url = 'https://api-t2.fyers.in/vagator/v2/verify_pin'
-    res_pin = ses.post(url=req_url, json=payload_pin).json()
-    print(res_pin['data'])
-    ses.headers.update({'authorization': f"Bearer {res_pin['data']['access_token']}"})
-
-    auth_param = {"fyers_id": conf.fy_id, "app_id": conf.app_id, "redirect_uri": getattr(conf, 'redirect_url', None),
-                  "appType": conf.app_type, "code_challenge": "", "state": "None",
-                  "scope": "", "nonce": "", "response_type": "code", "create_cookie": True}
-    print("AUTH PARAMS: ", auth_param)
-    authres = ses.post('https://api.fyers.in/api/v2/token', json=auth_param).json()
-    print(authres)
-    url = authres['Url']
-    print(url)
-    parsed = urlparse(url)
-    auth_code = parse_qs(parsed.query)['auth_code'][0]
-
-    session.set_token(auth_code)
-    response = session.generate_token()
-    conf.access_token = response['access_token']
-    print(f"[INFO] ACCESS TOKEN: {conf.access_token}")
-
-    fyers_model = fyersModel.FyersModel(
-        client_id=conf.client_id,
-        token=conf.access_token,
-        log_path=os.getcwd()
-    )
-
-    print(f'[INFO] {fyers_model.get_profile()}')
+        return self.expiry
 
 
-if __name__ == '__main__':
-    main()
