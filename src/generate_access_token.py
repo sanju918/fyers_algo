@@ -78,7 +78,9 @@ def generate_access_token():
     else:
         print(f'[INFO] Profile data: {profile_data}')
 
-    return {'access_token': access_token, 'expiry': expiry, 'app_id': conf.app_id}
+    instrument_list = getattr(conf, 'instruments', [])
+
+    return access_token, conf
 
 
 if __name__ == '__main__':
