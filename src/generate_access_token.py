@@ -5,17 +5,18 @@ import requests
 from fyers_api import accessToken, fyersModel
 
 from settings import Settings
+from dotenv import dotenv_values
 
 
 def generate_access_token():
     conf = Settings()
-    expiry = conf.get_weekly_expiry()
+    redirect_uri = dotenv_values(".env")["REDIRECT_URL"]
     session = accessToken.SessionModel(
         client_id=conf.client_id,
         secret_key=conf.secret_key,
         response_type='code',
         grant_type='authorization_code',
-        redirect_uri=getattr(conf, 'redirect_url')
+        redirect_uri=redirect_uri
     )
 
     # print(conf.client_id, conf.secret_key, conf.redirect_url)
@@ -31,7 +32,7 @@ def generate_access_token():
             print('[ERROR] Verify TOTP failed.', verify_totp_result['data'])
         else:
             # print('[SUCCESS] TOTP Successfully verified.', verify_totp_result['data'])
-            print('[SUCCESS] TOTP Successfully verified.')
+            print('[Success] TOTP Successfully verified.')
             break
 
     req_key = verify_totp_result['data']
@@ -49,7 +50,7 @@ def generate_access_token():
 
     ses.headers.update({'authorization': f"Bearer {res_pin['data']['access_token']}"})
 
-    auth_param = {"fyers_id": conf.fy_id, "app_id": conf.app_id, "redirect_uri": getattr(conf, 'redirect_url', None),
+    auth_param = {"fyers_id": conf.fy_id, "app_id": conf.app_id, "redirect_uri": redirect_uri ,
                   "appType": conf.app_type, "code_challenge": "", "state": "None",
                   "scope": "", "nonce": "", "response_type": "code", "create_cookie": True}
     # print("AUTH PARAMS: ", auth_param)
@@ -76,7 +77,7 @@ def generate_access_token():
     if profile_data['code'] != 200:
         print("[Error] Unable to get profile information at this moment.")
     else:
-        print(f'[INFO] Profile data: {profile_data}')
+        print(f'[INFO] Profile data: {profile_data["data"]}')
 
     instrument_list = getattr(conf, 'instruments', [])
 

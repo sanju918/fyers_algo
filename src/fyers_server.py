@@ -5,7 +5,6 @@ from pprint import pprint
 from flask import Flask, request
 import threading
 
-
 app = Flask(__name__)
 
 tokenMapping = {}
@@ -43,30 +42,21 @@ def start_server():
     app.run(host='0.0.0.0', port=4001)
 
 
-def run_server(access_token: str, conf: object):
-    app_id = getattr(conf, 'app_id', '')
-    access_token = access_token
-
-    fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=app_id, log_path="./logs")
-
-    expiry = getattr(conf, 'expiry', {})
-
-    switcher = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JULY", "AUG", "SEP", "OCT", "NOV", "DEC"]
-    if expiry["month"] in switcher:
-        int_expiry = expiry["year"] + expiry["month"]
-    else:
-        int_expiry = expiry["year"] + expiry["month"] + expiry["day"]
-
+def get_opt_instruments_list(fyers, symbol: str, expiry_str):
     strike_list = []
     instrument_list = []
-
-    # NIFTY
-    data = {
-        "symbols": "NSE:NIFTY50-INDEX"
-    }
+    data = {"symbols": symbol}
 
     ltp = fyers.quotes(data=data)
-    print("Last Trading Price: ", ltp)
+    if ltp['code'] == 200:
+        print("[Info] Last Trading Price: ", ltp['d'][0]['v'])
+
+    strike = 0
+
+    if ltp['code'] == 200 and ltp['d'][0]['s'] == 'ok':
+        strike = ltp['d'][0]['v']['lp']
+    else:
+        raise ValueError(f"[Err] {ltp['d'][0]['v']['code']} {ltp['d'][0]['v']['errmsg']}")
 
     if ltp['code'] == '500':
         raise ConnectionError(ltp['data'])
@@ -75,61 +65,51 @@ def run_server(access_token: str, conf: object):
     elif ltp['code'] != 200:
         raise ValueError(ltp)
 
-    a = ltp['d'][0]['v']['lp']
+    if strike > 0:
+        for i in range(-2, 2):
+            strike = (int(strike / 100) + i) * 100
+            strike_list.append(strike)
+            if symbol == 'NSE:NIFTY50-INDEX':
+                strike_list.append(strike + 50)
 
-    for i in range(-2, 2):
-        strike = (int(a / 100) + i) * 100
-        strike_list.append(strike)
-        strike_list.append(strike + 50)
+    print("[Info] STRIKE LIST: ", strike_list)
 
-    print("STRIKE LIST: ", strike_list)
+    # NSE:NIFTY2390719400CE
 
-    # Add Index
-    instrument_list.append('NSE:NIFTY50-INDEX')
+    if strike_list:
+        mapper = {'NSE:NIFTY50-INDEX': "NSE:NIFTY", "NSE:NIFTYBANK-INDEX": 'NSE:BANKNIFTY'}
+        for strike in strike_list:
+            ltp_option = mapper[symbol] + expiry_str + str(strike)
+            instrument_list.append(ltp_option + "CE")
+            instrument_list.append(ltp_option + "PE")
 
-    # Add CE
-    for strike in strike_list:
-        ltp_option = "NSE:NIFTY" + str(int_expiry) + str(strike) + "CE"
-        instrument_list.append(ltp_option)
+        return instrument_list
 
-    # Add PE
-    for strike in strike_list:
-        ltp_option = "NSE:NIFTY" + str(int_expiry) + str(strike) + "PE"
-        instrument_list.append(ltp_option)
-
-    strike_list = []
-    # BANKNIFTY
-    data = {
-        "symbols": "NSE:NIFTYBANK-INDEX"
-    }
-    ltp = fyers.quotes(data=data)
-    a = ltp['d'][0]['v']['lp']
-
-    for i in range(-2, 2):
-        strike = (int(a / 100) + i) * 100
-        strike_list.append(strike)
-
-    # Add Index
-    instrument_list.append('NSE:NIFTYBANK-INDEX')
+    else:
+        raise ValueError("[Error] Can't determine instrument list. Please check correct expiry.")
 
 
-    # Add CE
-    for strike in strike_list:
-        ltp_option = "NSE:BANKNIFTY" + str(int_expiry) + str(strike) + "CE"
-        instrument_list.append(ltp_option)
+def run_server(access_token: str, conf: object):
+    app_id = getattr(conf, 'app_id', '')
+    access_token = access_token
+    fyers = fyersModel.FyersModel(token=access_token, is_async=False, client_id=app_id, log_path="./logs")
 
-    # Add PE
-    for strike in strike_list:
-        ltp_option = "NSE:BANKNIFTY" + str(int_expiry) + str(strike) + "PE"
-        instrument_list.append(ltp_option)
+    # Add Indexes 'NSE:NIFTYBANK-INDEX', 'NSE:NIFTY50-INDEX',
+    index_list = ['NSE:NIFTY50-INDEX', 'NSE:NIFTYBANK-INDEX']
+    instrument_list = []
 
-    instrument_list1 = getattr(conf, 'instruments', [])
+    for index in index_list:
+        expiry = conf.get_weekly_expiry(index)
+        print(f"[Info] Expiry for {index} :", expiry)
 
-    instrument_list = instrument_list + instrument_list1
+        temp_inst_list = get_opt_instruments_list(fyers, index, expiry)
+        instrument_list.extend(temp_inst_list)
 
-    print("BELOW IS THE COMPLETE INSTRUMENT LIST")
-    print(instrument_list)
-    print("!! Started getltpDict.py !!")
+    instrument_list.extend(getattr(conf, 'instruments', None))
+    instrument_list.extend(index_list)
+
+    print("[Info] BELOW IS THE COMPLETE INSTRUMENT LIST", instrument_list)
+
     # END INPUT DATA
     t1 = threading.Thread(target=start_server)
     t1.start()

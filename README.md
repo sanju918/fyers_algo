@@ -4,6 +4,7 @@
 - `Docker Desktop` (Download it from here: https://www.docker.com/products/docker-desktop/ )
 - `PyChram Community Edition` (Download it from here: https://www.jetbrains.com/pycharm/download/)
 - `WSL 2` This is required for Windows users. If WSL is not installed in your windows system, go to microsoft store and sesarch for `WSL 2`. It will show something like `Windows Subsystem for Linux`, install this. Also you can follow Microsoft documentation here: https://learn.microsoft.com/en-us/windows/wsl/install
+- Docker File: `cenzer2/python_fyers_algo_min`
 
 ### Optional 
 - Python 3.9 (Download it from here: https://www.python.org/downloads/release/python-3918/)
