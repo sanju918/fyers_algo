@@ -1,10 +1,4 @@
 ---
-redirect_url: https://www.sanjaythegreatcoder.com
-expiry:
-  year: '23'
-  month: AUG
-  day: '31'
-year: 2023
 holidays:
 - 26-01-2023
 - 07-03-2023
@@ -22,6 +16,10 @@ holidays:
 - 27-11-2023
 - 25-12-2023
 instruments:
-- NSE:NIFTYBANK-INDEX
 - NSE:SBIN-EQ
 - MCX:CRUDEOIL23SEPFUT
+expires:
+  - index: NSE:NIFTY50-INDEX
+    expiry: THU
+  - index: NSE:NIFTYBANK-INDEX
+    expiry: WED
